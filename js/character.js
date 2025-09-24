@@ -33,8 +33,7 @@ function Character() {
         return attacked;
     };
 
-    this.moveUp = function(map, enemies) {
-
+    this.moveUp = function(map, enemies, items) {
         var targetTile = map.getTile(this.x, this.y - 1);
         if (targetTile === 0) {
             for (var i = 0; i < enemies.length; i++) {
@@ -43,6 +42,9 @@ function Character() {
                 }
             }
 
+            // Check if there's an item at the target position
+            checkAndHandleItem(items, this, this.x, this.y - 1);
+
             this.y--;
             return true;
         } else {
@@ -50,7 +52,7 @@ function Character() {
         }
     };
 
-    this.moveDown = function(map, enemies) {
+    this.moveDown = function(map, enemies, items) {
         var targetTile = map.getTile(this.x, this.y + 1);
         if (targetTile === 0) {
             for (var i = 0; i < enemies.length; i++) {
@@ -59,15 +61,17 @@ function Character() {
                 }
             }
 
-            this.y++;
+            // Check if there's an item at the target position
+            checkAndHandleItem(items, this, this.x, this.y + 1);
 
+            this.y++;
             return true;
         } else {
             return false;
         }
     };
 
-    this.moveLeft = function(map, enemies) {
+    this.moveLeft = function(map, enemies, items) {
         var targetTile = map.getTile(this.x - 1, this.y);
         if (targetTile === 0) {
             // Check if there's an enemy at the target position
@@ -77,6 +81,9 @@ function Character() {
                 }
             }
 
+            // Check if there's an item at the target position
+            checkAndHandleItem(items, this, this.x - 1, this.y);
+
             this.x--;
             return true;
         } else {
@@ -84,7 +91,7 @@ function Character() {
         }
     };
 
-    this.moveRight = function(map, enemies) {
+    this.moveRight = function(map, enemies, items) {
         var targetTile = map.getTile(this.x + 1, this.y);
         if (targetTile === 0) {
             for (var i = 0; i < enemies.length; i++) {
@@ -92,6 +99,10 @@ function Character() {
                     return false;
                 }
             }
+
+            // Check if there's an item at the target position
+            checkAndHandleItem(items, this, this.x + 1, this.y);
+
             this.x++;
             return true;
         } else {

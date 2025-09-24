@@ -19,7 +19,16 @@ function Game() {
 
         this.setupKeyboardControls();
 
+        // Immediate enemy attack if player starts adjacent
+        this.checkImmediateEnemyAttack();
+
         this.render();
+
+        var self = this;
+        this.enemyAttackTimer = setInterval(function() {
+            self.enemiesAttack();
+            self.render();
+        }, 2000);
     };
 
     // Движение игрока
@@ -29,34 +38,61 @@ function Game() {
             var moved = false;
             var attacked = false;
 
-            console.log('Key pressed:', event.key, 'Key code:', event.keyCode);
+            console.log('Key pressed:', event.key, 'Key code:', event.keyCode, 'Code:', event.code);
 
-            // Get the key in lowercase for consistent comparison
-            var key = event.key.toLowerCase();
-            console.log('Lowercase key:', key);
+            // Use event.code for more consistent behavior across browsers and keyboard layouts
+            var code = event.code;
+            console.log('Code:', code);
 
             // Handle movement based on key pressed
-            if (key === 'w' || key === 'arrowup') {
-                moved = self.player.moveUp(self.map, self.enemies);
+            if (code === 'KeyW' || code === 'ArrowUp') {
+                moved = self.player.moveUp(self.map, self.enemies, self.items);
                 console.log('UP');
-            } else if (key === 'a' || key === 'arrowleft') {
-                moved = self.player.moveLeft(self.map, self.enemies);
+            } else if (code === 'KeyA' || code === 'ArrowLeft') {
+                moved = self.player.moveLeft(self.map, self.enemies, self.items);
                 console.log('LEFT');
-            } else if (key === 's' || key === 'arrowdown') {
-                moved = self.player.moveDown(self.map, self.enemies);
+            } else if (code === 'KeyS' || code === 'ArrowDown') {
+                moved = self.player.moveDown(self.map, self.enemies, self.items);
                 console.log('DOWN');
-            } else if (key === 'd' || key === 'arrowright') {
-                moved = self.player.moveRight(self.map, self.enemies);
+            } else if (code === 'KeyD' || code === 'ArrowRight') {
+                moved = self.player.moveRight(self.map, self.enemies, self.items);
                 console.log('RIGHT');
-            } else if (key === ' ') { // Spacebar
+            } else if (code === 'Space') { // Spacebar
                 attacked = self.player.attack(self.enemies);
                 console.log('ATTACK');
+            }
+
+            if (moved) {
+                // Trigger immediate enemy attack when entering adjacency
+                self.checkImmediateEnemyAttack();
             }
 
             if (moved || attacked) {
                 self.render();
             }
         });
+    };
+
+    // One-time immediate enemy attack upon entering adjacency; periodic attacks handled by enemiesAttack timer
+    this.checkImmediateEnemyAttack = function() {
+        for (var i = 0; i < this.enemies.length; i++) {
+            var e = this.enemies[i];
+            var adjacent = (Math.abs(this.player.x - e.x) === 1 && this.player.y === e.y) ||
+                           (Math.abs(this.player.y - e.y) === 1 && this.player.x === e.x);
+
+            if (adjacent) {
+                if (!e.wasInRange) {
+                    if (e.health > 0 && this.player.health > 0) {
+                        this.player.health -= e.attackPower;
+                        if (this.player.health < 0) this.player.health = 0;
+                    }
+                    e.wasInRange = true;
+                }
+            } else {
+                // Reset flag when leaving adjacency to allow future immediate attack on re-entry
+                e.wasInRange = false;
+            }
+        }
     };
 
     // Размещение игрока в случайном месте
@@ -132,16 +168,13 @@ function Game() {
         var position;
         var isValidPosition = false;
 
-        // Find a valid position that doesn't overlap with the player, enemies, or other items
         while (!isValidPosition) {
             position = this.map.getRandomEmptyPosition();
 
-            // Check if position overlaps with player
             if (this.player && position.x === this.player.x && position.y === this.player.y) {
                 continue;
             }
 
-            // Check if position overlaps with enemies
             var overlapsWithEnemy = false;
             for (var i = 0; i < this.enemies.length; i++) {
                 if (position.x === this.enemies[i].x && position.y === this.enemies[i].y) {
@@ -154,7 +187,6 @@ function Game() {
                 continue;
             }
 
-            // Check if position overlaps with other items
             var overlapsWithItem = false;
             for (var i = 0; i < this.items.length; i++) {
                 if (position.x === this.items[i].x && position.y === this.items[i].y) {
@@ -168,14 +200,22 @@ function Game() {
             }
         }
 
-        // Set item position and add to items array
         item.setPosition(position.x, position.y);
         this.items.push(item);
     };
 
-    /**
-     * Render the game
-     */
+    this.enemiesAttack = function() {
+        for (var i = 0; i < this.enemies.length; i++) {
+            var e = this.enemies[i];
+            if ((Math.abs(this.player.x - e.x) === 1 && this.player.y === e.y) || (Math.abs(this.player.y - e.y) === 1 && this.player.x === e.x)) {
+                if (e.health > 0 && this.player.health > 0) {
+                    this.player.health -= e.attackPower;
+                    if (this.player.health < 0) this.player.health = 0;
+                }
+            }
+        }
+    };
+
     this.render = function() {
         // Get the field element
         var field = document.querySelector('.field');

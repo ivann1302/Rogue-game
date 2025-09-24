@@ -4,7 +4,9 @@ function Enemy() {
 
     this.health = 100;
     this.maxHealth = 100;
-    this.attackPower = 5;
+    this.attackPower = 15;
+
+    this.wasInRange = false;
 
     this.setPosition = function(x, y) {
         this.x = x;

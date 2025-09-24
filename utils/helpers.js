@@ -12,34 +12,59 @@ function doRectanglesOverlap(rect1, rect2) {
 }
 
 function removeDefeatedEnemy(enemies, index) {
-    // Remove the enemy at the specified index
     enemies.splice(index, 1);
     return enemies;
 }
 
-function isRoomConnected(room, grid) {
-    // Check if a room has at least one passage connected to it
-    // Check the perimeter of the room
+function removeItem(items, index) {
+    items.splice(index, 1);
+    return items;
+}
 
-    // Check top and bottom edges
+function applyHealthPotion(player) {
+    if (player.health < player.maxHealth) {
+        player.health = Math.min(player.health + 25, player.maxHealth);
+        return true;
+    }
+    return false;
+}
+
+function applySword(player) {
+    player.attackPower += 5;
+    return true;
+}
+
+
+function checkAndHandleItem(items, player, x, y) {
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].x === x && items[i].y === y) {
+            if (items[i].type === 'health') {
+                applyHealthPotion(player);
+            } else if (items[i].type === 'sword') {
+                applySword(player);
+            }
+
+            removeItem(items, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+function isRoomConnected(room, grid) {
     for (var x = room.x; x < room.x + room.width; x++) {
-        // Top edge
         if (room.y > 0 && grid[room.y - 1][x] === 0) {
             return true;
         }
-        // Bottom edge
         if (room.y + room.height < grid.length && grid[room.y + room.height][x] === 0) {
             return true;
         }
     }
 
-    // Check left and right edges
     for (var y = room.y; y < room.y + room.height; y++) {
-        // Left edge
         if (room.x > 0 && grid[y][room.x - 1] === 0) {
             return true;
         }
-        // Right edge
         if (room.x + room.width < grid[0].length && grid[y][room.x + room.width] === 0) {
             return true;
         }
