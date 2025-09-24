@@ -3,6 +3,11 @@ function Game() {
     this.player = null;
     this.enemies = [];
     this.items = [];
+    this.gameOver = false;
+    this.gameWon = false;
+    this.enemyAttackTimer = null;
+    this.enemyMoveTimer = null;
+    this.keyHandler = null;
 
     this.init = function() {
         this.map = new Map();
@@ -35,20 +40,24 @@ function Game() {
         }, 1000);
     };
 
+    this.stopTimers = function() {
+        if (this.enemyAttackTimer) { clearInterval(this.enemyAttackTimer); this.enemyAttackTimer = null; }
+        if (this.enemyMoveTimer) { clearInterval(this.enemyMoveTimer); this.enemyMoveTimer = null; }
+    };
+
     // Движение игрока
     this.setupKeyboardControls = function() {
         var self = this;
-        document.addEventListener('keydown', function(event) {
+        this.keyHandler = function(event) {
+            if (self.gameOver || self.gameWon) return;
             var moved = false;
             var attacked = false;
 
             console.log('Key pressed:', event.key, 'Key code:', event.keyCode, 'Code:', event.code);
 
-            // Use event.code for more consistent behavior across browsers and keyboard layouts
             var code = event.code;
             console.log('Code:', code);
 
-            // Handle movement based on key pressed
             if (code === 'KeyW' || code === 'ArrowUp') {
                 moved = self.player.moveUp(self.map, self.enemies, self.items);
                 console.log('UP');
@@ -61,20 +70,20 @@ function Game() {
             } else if (code === 'KeyD' || code === 'ArrowRight') {
                 moved = self.player.moveRight(self.map, self.enemies, self.items);
                 console.log('RIGHT');
-            } else if (code === 'Space') { // Spacebar
+            } else if (code === 'Space') {
                 attacked = self.player.attack(self.enemies);
                 console.log('ATTACK');
             }
 
             if (moved) {
-                // Trigger immediate enemy attack when entering adjacency
                 self.checkImmediateEnemyAttack();
             }
 
             if (moved || attacked) {
                 self.render();
             }
-        });
+        };
+        document.addEventListener('keydown', this.keyHandler);
     };
 
     // One-time immediate enemy attack upon entering adjacency; periodic attacks handled by enemiesAttack timer
@@ -283,6 +292,18 @@ function Game() {
         // Clear the field
         field.innerHTML = '';
 
+        // Check for player death and mark game over (stop timers)
+        if (this.player && !isAlive(this.player) && !this.gameOver) {
+            this.gameOver = true;
+            this.stopTimers();
+        }
+
+        // Check for victory: all enemies defeated
+        if (!this.gameOver && !this.gameWon && this.enemies.length === 0) {
+            this.gameWon = true;
+            this.stopTimers();
+        }
+
         // Render the map
         for (var y = 0; y < this.map.height; y++) {
             for (var x = 0; x < this.map.width; x++) {
@@ -342,6 +363,71 @@ function Game() {
                 // Add the tile to the field
                 field.appendChild(tile);
             }
+        }
+
+        // If game is over (player dead), show overlay inside the field
+        if (this.gameOver) {
+            var overlay = document.createElement('div');
+            overlay.setAttribute('data-overlay', 'game-over');
+            overlay.style.position = 'absolute';
+            overlay.style.left = '0';
+            overlay.style.top = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.7)';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '1000';
+
+            var title = document.createElement('div');
+            title.textContent = 'Поражение';
+            title.style.fontFamily = 'Playfair Display, serif';
+            title.style.fontSize = Math.max(18, Math.floor(tileSize * 0.8)) + 'px';
+            title.style.marginBottom = '16px';
+
+            var btn = document.createElement('button');
+            btn.textContent = 'Начать сначала';
+            btn.style.fontSize = Math.max(14, Math.floor(tileSize * 0.5)) + 'px';
+            btn.style.padding = '8px 12px';
+            btn.style.cursor = 'pointer';
+            btn.onclick = function() { window.location.reload(); };
+
+            overlay.appendChild(title);
+            overlay.appendChild(btn);
+            field.appendChild(overlay);
+        } else if (this.gameWon) {
+            var overlayW = document.createElement('div');
+            overlayW.setAttribute('data-overlay', 'game-won');
+            overlayW.style.position = 'absolute';
+            overlayW.style.left = '0';
+            overlayW.style.top = '0';
+            overlayW.style.width = '100%';
+            overlayW.style.height = '100%';
+            overlayW.style.background = 'rgba(0,0,0,0.7)';
+            overlayW.style.display = 'flex';
+            overlayW.style.flexDirection = 'column';
+            overlayW.style.alignItems = 'center';
+            overlayW.style.justifyContent = 'center';
+            overlayW.style.zIndex = '1000';
+
+            var titleW = document.createElement('div');
+            titleW.textContent = 'Победа';
+            titleW.style.fontFamily = 'Playfair Display, serif';
+            titleW.style.fontSize = Math.max(18, Math.floor(tileSize * 0.8)) + 'px';
+            titleW.style.marginBottom = '16px';
+
+            var btnW = document.createElement('button');
+            btnW.textContent = 'Начать сначала';
+            btnW.style.fontSize = Math.max(14, Math.floor(tileSize * 0.5)) + 'px';
+            btnW.style.padding = '8px 12px';
+            btnW.style.cursor = 'pointer';
+            btnW.onclick = function() { window.location.reload(); };
+
+            overlayW.appendChild(titleW);
+            overlayW.appendChild(btnW);
+            field.appendChild(overlayW);
         }
     };
 }
