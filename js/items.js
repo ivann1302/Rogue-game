@@ -1,11 +1,11 @@
-/**
- * Game items logic
- */
+function Item(type) {
+    this.x = 0;
+    this.y = 0;
 
-/**
- * Item constructor
- * Handles different types of items (swords, health potions)
- */
-function Item() {
-    // Item properties and methods will be added here
+    this.type = type || 'health';
+
+    this.setPosition = function(x, y) {
+        this.x = x;
+        this.y = y;
+    };
 }
