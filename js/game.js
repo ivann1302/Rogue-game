@@ -19,7 +19,6 @@ function Game() {
 
         this.setupKeyboardControls();
 
-        // Immediate enemy attack if player starts adjacent
         this.checkImmediateEnemyAttack();
 
         this.render();
@@ -29,6 +28,11 @@ function Game() {
             self.enemiesAttack();
             self.render();
         }, 2000);
+
+        this.enemyMoveTimer = setInterval(function() {
+            self.enemiesRandomMove();
+            self.render();
+        }, 1000);
     };
 
     // Движение игрока
@@ -216,6 +220,46 @@ function Game() {
         }
     };
 
+    this.enemiesRandomMove = function() {
+        for (var i = 0; i < this.enemies.length; i++) {
+            var e = this.enemies[i];
+            if (e.health <= 0) continue;
+
+            var adjacentToPlayer = (Math.abs(this.player.x - e.x) === 1 && this.player.y === e.y) || (Math.abs(this.player.y - e.y) === 1 && this.player.x === e.x);
+            if (adjacentToPlayer) continue;
+
+            var dirs = [
+                {dx: 0, dy: -1},
+                {dx: 0, dy: 1},
+                {dx: -1, dy: 0},
+                {dx: 1, dy: 0}
+            ];
+            var tried = 0;
+            while (tried < 4) {
+                var idx = getRandomInt(0, dirs.length - 1);
+                var nx = e.x + dirs[idx].dx;
+                var ny = e.y + dirs[idx].dy;
+                var tile = this.map.getTile(nx, ny);
+                var blocked = tile !== 0;
+                if (!blocked) {
+                    if (this.player.x === nx && this.player.y === ny) {
+                        blocked = true;
+                    } else {
+                        for (var j = 0; j < this.enemies.length; j++) {
+                            if (j !== i && this.enemies[j].x === nx && this.enemies[j].y === ny) { blocked = true; break; }
+                        }
+                    }
+                }
+                if (!blocked) {
+                    e.x = nx;
+                    e.y = ny;
+                    break;
+                }
+                tried++;
+            }
+        }
+    };
+
     this.render = function() {
         // Get the field element
         var field = document.querySelector('.field');
@@ -258,8 +302,8 @@ function Game() {
                     tile.classList.add('tileW'); // Wall
                 }
 
-                // Check if the player is on this tile
-                if (this.player && this.player.x === x && this.player.y === y) {
+                // Check if the player is on this tile and alive
+                if (this.player && isAlive(this.player) && this.player.x === x && this.player.y === y) {
                     tile.classList.add('tileP'); // Player
 
                     // Add health bar

@@ -72,3 +72,8 @@ function isRoomConnected(room, grid) {
 
     return false;
 }
+
+// Utility to check if an entity with health is alive
+function isAlive(entity) {
+    return !!(entity && typeof entity.health === 'number' && entity.health > 0);
+}
