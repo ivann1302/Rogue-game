@@ -12,13 +12,23 @@
 		<script src="js/character/state.js"></script>
 		<script src="js/character/movement.js"></script>
 		<script src="js/character/combat.js"></script>
-		<script src="js/map.js"></script>
+		<script src="js/map/core.js"></script>
+		<script src="js/map/generation.js"></script>
+		<script src="js/map/passages.js"></script>
+		<script src="js/map/accessibility.js"></script>
+		<script src="js/map/query.js"></script>
+		<script src="js/map/map.js"></script>
 		<script src="js/character/character.js"></script>
 		<script src="js/enemy/state.js"></script>
 		<script src="js/enemy/enemy.js"></script>
 		<script src="js/items/state.js"></script>
 		<script src="js/items/item.js"></script>
-		<script src="js/game.js"></script>
+		<script src="js/game/timers.js"></script>
+		<script src="js/game/input.js"></script>
+		<script src="js/game/placement.js"></script>
+		<script src="js/game/enemies.js"></script>
+		<script src="js/game/render.js"></script>
+		<script src="js/game/game.js"></script>
 <style>
 * { box-sizing: border-box; }
 body, html { height: 100%; }
@@ -37,7 +47,7 @@ h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0px; margin
 .inventory-box { border: 2px solid #d0d0d0; margin: 0 auto; }
 .inventory { position: relative; width: 800px; height: 32px; }
 </style>
-		<title>Rouge-like Game</title>
+		<title>Rogue-like Game</title>
 	</head>
 	<body>
 		<h1>Игровое поле</h1>

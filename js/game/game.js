@@ -41,12 +41,18 @@ function Game() {
     };
 
     this.stopTimers = function() {
+        if (window.GameUtils && GameUtils.timers && typeof GameUtils.timers.stopTimers === 'function') {
+            return GameUtils.timers.stopTimers(this);
+        }
         if (this.enemyAttackTimer) { clearInterval(this.enemyAttackTimer); this.enemyAttackTimer = null; }
         if (this.enemyMoveTimer) { clearInterval(this.enemyMoveTimer); this.enemyMoveTimer = null; }
     };
 
     // Движение игрока
     this.setupKeyboardControls = function() {
+        if (window.GameUtils && GameUtils.input && typeof GameUtils.input.setupKeyboardControls === 'function') {
+            return GameUtils.input.setupKeyboardControls(this);
+        }
         var self = this;
         this.keyHandler = function(event) {
             if (self.gameOver || self.gameWon) return;
@@ -87,6 +93,9 @@ function Game() {
     };
 
     this.checkImmediateEnemyAttack = function() {
+        if (window.GameUtils && GameUtils.enemies && typeof GameUtils.enemies.checkImmediateEnemyAttack === 'function') {
+            return GameUtils.enemies.checkImmediateEnemyAttack(this);
+        }
         for (var i = 0; i < this.enemies.length; i++) {
             var e = this.enemies[i];
             var adjacent = (Math.abs(this.player.x - e.x) === 1 && this.player.y === e.y) ||
@@ -108,6 +117,9 @@ function Game() {
 
     // Размещение игрока в случайном месте
     this.placePlayerAtRandomPosition = function() {
+        if (window.GameUtils && GameUtils.placement && typeof GameUtils.placement.placePlayerAtRandomPosition === 'function') {
+            return GameUtils.placement.placePlayerAtRandomPosition(this);
+        }
         var position = this.map.getRandomEmptyPosition();
         console.log("Placing player at position:", position.x, position.y, "with tile value:", this.map.getTile(position.x, position.y));
         this.player.setPosition(position.x, position.y);
@@ -115,6 +127,9 @@ function Game() {
 
     // Размещение врагов в случайном месте
     this.placeEnemiesAtRandomPositions = function(count) {
+        if (window.GameUtils && GameUtils.placement && typeof GameUtils.placement.placeEnemiesAtRandomPositions === 'function') {
+            return GameUtils.placement.placeEnemiesAtRandomPositions(this, count);
+        }
         this.enemies = [];
 
         for (var i = 0; i < count; i++) {
@@ -153,8 +168,10 @@ function Game() {
      * @param {number} healthCount - Number of health potions to place
      */
     this.placeItemsAtRandomPositions = function(swordCount, healthCount) {
+        if (window.GameUtils && GameUtils.placement && typeof GameUtils.placement.placeItemsAtRandomPositions === 'function') {
+            return GameUtils.placement.placeItemsAtRandomPositions(this, swordCount, healthCount);
+        }
         this.items = [];
-
 
         for (var i = 0; i < swordCount; i++) {
             var sword = new Item('sword');
@@ -168,6 +185,9 @@ function Game() {
     };
 
     this.placeItemAtRandomPosition = function(item) {
+        if (window.GameUtils && GameUtils.placement && typeof GameUtils.placement.placeItemAtRandomPosition === 'function') {
+            return GameUtils.placement.placeItemAtRandomPosition(this, item);
+        }
         var position;
         var isValidPosition = false;
 
@@ -208,6 +228,9 @@ function Game() {
     };
 
     this.enemiesAttack = function() {
+        if (window.GameUtils && GameUtils.enemies && typeof GameUtils.enemies.enemiesAttack === 'function') {
+            return GameUtils.enemies.enemiesAttack(this);
+        }
         for (var i = 0; i < this.enemies.length; i++) {
             var e = this.enemies[i];
             if ((Math.abs(this.player.x - e.x) === 1 && this.player.y === e.y) || (Math.abs(this.player.y - e.y) === 1 && this.player.x === e.x)) {
@@ -220,6 +243,9 @@ function Game() {
     };
 
     this.enemiesRandomMove = function() {
+        if (window.GameUtils && GameUtils.enemies && typeof GameUtils.enemies.enemiesRandomMove === 'function') {
+            return GameUtils.enemies.enemiesRandomMove(this);
+        }
         for (var i = 0; i < this.enemies.length; i++) {
             var e = this.enemies[i];
             if (e.health <= 0) continue;
@@ -260,6 +286,9 @@ function Game() {
     };
 
     this.render = function() {
+        if (window.GameUtils && GameUtils.render && typeof GameUtils.render.render === 'function') {
+            return GameUtils.render.render(this);
+        }
         var field = document.querySelector('.field');
         var fieldBox = document.querySelector('.field-box');
 
@@ -299,14 +328,14 @@ function Game() {
                 tile.style.top = (y * tileSize) + 'px';
 
                 if (this.map.getTile(x, y) === 1) {
-                    tile.classList.add('tileW'); // Стена
+                    tile.classList.add('tileW');
                 }
 
                 var hasPlayer = false;
                 var hasEnemy = false;
 
                 if (this.player && isAlive(this.player) && this.player.x === x && this.player.y === y) {
-                    tile.classList.add('tileP'); // Игрок
+                    tile.classList.add('tileP');
                     hasPlayer = true;
 
                     var healthBar = document.createElement('div');
@@ -318,7 +347,7 @@ function Game() {
                 if (!hasPlayer) {
                     for (var i = 0; i < this.enemies.length; i++) {
                         if (this.enemies[i].x === x && this.enemies[i].y === y) {
-                            tile.classList.add('tileE'); // Враг
+                            tile.classList.add('tileE');
                             hasEnemy = true;
 
                             var healthBar = document.createElement('div');
@@ -329,15 +358,14 @@ function Game() {
                         }
                     }
                 }
-
-                // Render item only if there is no player or enemy on this tile
+                
                 if (!hasPlayer && !hasEnemy) {
                     for (var i = 0; i < this.items.length; i++) {
                         if (this.items[i].x === x && this.items[i].y === y) {
                             if (this.items[i].type === 'sword') {
-                                tile.classList.add('tileSW'); // Меч
+                                tile.classList.add('tileSW');
                             } else if (this.items[i].type === 'health') {
-                                tile.classList.add('tileHP'); // Очки здоровья
+                                tile.classList.add('tileHP');
                             }
                             break;
                         }

@@ -10,10 +10,9 @@
 
   function tryMove(character, map, enemies, items, nx, ny) {
     var targetTile = map.getTile(nx, ny);
-    if (targetTile !== 0) return false; // blocked by wall
-    if (isEnemyAt(enemies, nx, ny)) return false; // blocked by enemy
+    if (targetTile !== 0) return false;
+    if (isEnemyAt(enemies, nx, ny)) return false;
 
-    // pick up item if any
     if (typeof checkAndHandleItem === 'function') {
       checkAndHandleItem(items, character, nx, ny);
     }
