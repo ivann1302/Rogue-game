@@ -59,26 +59,19 @@ function Game() {
             var moved = false;
             var attacked = false;
 
-            console.log('Key pressed:', event.key, 'Key code:', event.keyCode, 'Code:', event.code);
 
             var code = event.code;
-            console.log('Code:', code);
 
             if (code === 'KeyW' || code === 'ArrowUp') {
                 moved = self.player.moveUp(self.map, self.enemies, self.items);
-                console.log('UP');
             } else if (code === 'KeyA' || code === 'ArrowLeft') {
                 moved = self.player.moveLeft(self.map, self.enemies, self.items);
-                console.log('LEFT');
             } else if (code === 'KeyS' || code === 'ArrowDown') {
                 moved = self.player.moveDown(self.map, self.enemies, self.items);
-                console.log('DOWN');
             } else if (code === 'KeyD' || code === 'ArrowRight') {
                 moved = self.player.moveRight(self.map, self.enemies, self.items);
-                console.log('RIGHT');
             } else if (code === 'Space') {
                 attacked = self.player.attack(self.enemies);
-                console.log('ATTACK');
             }
 
             if (moved) {
@@ -121,7 +114,6 @@ function Game() {
             return GameUtils.placement.placePlayerAtRandomPosition(this);
         }
         var position = this.map.getRandomEmptyPosition();
-        console.log("Placing player at position:", position.x, position.y, "with tile value:", this.map.getTile(position.x, position.y));
         this.player.setPosition(position.x, position.y);
     };
 

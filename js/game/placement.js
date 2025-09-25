@@ -18,7 +18,6 @@
   GameUtils.placement = {
     placePlayerAtRandomPosition: function (game) {
       var position = game.map.getRandomEmptyPosition();
-      console.log('Placing player at position:', position.x, position.y, 'with tile value:', game.map.getTile(position.x, position.y));
       game.player.setPosition(position.x, position.y);
     },
     placeEnemiesAtRandomPositions: function (game, count) {

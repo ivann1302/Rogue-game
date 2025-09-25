@@ -9,6 +9,17 @@
   }
 
   function tryMove(character, map, enemies, items, nx, ny) {
+    if (nx < 0 && map.getTile(0, character.y) === 0 && map.getTile(map.width - 1, character.y) === 0) {
+      nx = map.width - 1;
+    } else if (nx >= map.width && map.getTile(map.width - 1, character.y) === 0 && map.getTile(0, character.y) === 0) {
+      nx = 0;
+    }
+    if (ny < 0 && map.getTile(character.x, 0) === 0 && map.getTile(character.x, map.height - 1) === 0) {
+      ny = map.height - 1;
+    } else if (ny >= map.height && map.getTile(character.x, map.height - 1) === 0 && map.getTile(character.x, 0) === 0) {
+      ny = 0;
+    }
+
     var targetTile = map.getTile(nx, ny);
     if (targetTile !== 0) return false;
     if (isEnemyAt(enemies, nx, ny)) return false;
