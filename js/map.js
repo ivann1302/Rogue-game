@@ -10,25 +10,20 @@ function Map() {
     this.init = function() {
         console.log("Initializing map with dimensions", this.width, "x", this.height);
 
-        // Initialize grid with all walls
         this.grid = [];
         for (var y = 0; y < this.height; y++) {
             this.grid[y] = [];
             for (var x = 0; x < this.width; x++) {
-                this.grid[y][x] = 1; // 1 represents a wall
+                this.grid[y][x] = 1;
             }
         }
 
-        // Generate rooms (sets grid cells to 0 for empty spaces)
         this.generateRooms();
 
-        // Create passages (sets grid cells to 0 for empty spaces)
         this.createPassages();
 
-        // Ensure accessibility (may convert some walls to empty spaces)
         this.ensureAccessibility();
 
-        // Ensure there are at least some empty tiles
         var emptyTiles = 0;
         for (var y = 0; y < this.height; y++) {
             for (var x = 0; x < this.width; x++) {
@@ -38,10 +33,8 @@ function Map() {
             }
         }
 
-        // If there are very few empty tiles, create some more
         if (emptyTiles < 100) {
             console.warn("Not enough empty tiles, creating more...");
-            // Create a few more passages
             for (var i = 0; i < 3; i++) {
                 var y = getRandomInt(1, this.height - 2);
                 for (var x = 0; x < this.width; x++) {
@@ -49,7 +42,6 @@ function Map() {
                 }
             }
 
-            // Count again
             emptyTiles = 0;
             for (var y = 0; y < this.height; y++) {
                 for (var x = 0; x < this.width; x++) {
@@ -108,7 +100,6 @@ function Map() {
     };
 
     this.createPassages = function() {
-        // Create random horizontal passages
         var numHorizontalPassages = getRandomInt(3, 5);
         console.log("Creating", numHorizontalPassages, "horizontal passages");
         for (var i = 0; i < numHorizontalPassages; i++) {
@@ -121,7 +112,6 @@ function Map() {
             console.log("Horizontal passage", i + 1, "created at y =", y, "with", emptyTilesInPassage, "empty tiles");
         }
 
-        // Create random vertical passages
         var numVerticalPassages = getRandomInt(3, 5);
         console.log("Creating", numVerticalPassages, "vertical passages");
         for (var i = 0; i < numVerticalPassages; i++) {
@@ -134,26 +124,22 @@ function Map() {
             console.log("Vertical passage", i + 1, "created at x =", x, "with", emptyTilesInPassage, "empty tiles");
         }
 
-        // Ensure each room is connected to at least one passage
         this.connectIsolatedRooms();
     };
 
     this.connectIsolatedRooms = function() {
-        // Check each room to see if it's connected to a passage
+
         console.log("Checking for isolated rooms...");
         var isolatedRoomsCount = 0;
 
         for (var i = 0; i < this.rooms.length; i++) {
             var room = this.rooms[i];
 
-            // If the room is not connected, create a passage to connect it
             if (!isRoomConnected(room, this.grid)) {
                 isolatedRoomsCount++;
                 console.log("Room", i + 1, "is isolated, connecting it...");
 
-                // Decide randomly whether to create a horizontal or vertical passage
                 if (getRandomInt(0, 1) === 0) {
-                    // Create horizontal passage
                     var y = getRandomInt(room.y, room.y + room.height - 1);
                     var emptyTilesInPassage = 0;
                     for (var x = 0; x < this.width; x++) {
@@ -162,7 +148,6 @@ function Map() {
                     }
                     console.log("Created horizontal passage at y =", y, "with", emptyTilesInPassage, "empty tiles");
                 } else {
-                    // Create vertical passage
                     var x = getRandomInt(room.x, room.x + room.width - 1);
                     var emptyTilesInPassage = 0;
                     for (var y = 0; y < this.height; y++) {
@@ -209,13 +194,12 @@ function Map() {
 
     this.getTile = function(x, y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            return 1; // Out of bounds is a wall
+            return 1;
         }
 
-        // Ensure the grid is properly initialized
         if (!this.grid || !this.grid[y] || typeof this.grid[y][x] === 'undefined') {
             console.error("Grid not properly initialized at", x, y);
-            return 1; // Treat as wall if not initialized
+            return 1;
         }
 
         console.log("getTile: grid[" + y + "][" + x + "] =", this.grid[y][x]);
@@ -231,7 +215,6 @@ function Map() {
             attempts++;
             if (attempts > 1000) {
                 console.error("Failed to find an empty position after 1000 attempts!");
-                // Force an empty position by setting a random tile to 0
                 x = getRandomInt(0, this.width - 1);
                 y = getRandomInt(0, this.height - 1);
                 this.grid[y][x] = 0;

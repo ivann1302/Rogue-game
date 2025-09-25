@@ -9,6 +9,9 @@
 		<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&amp;subset=cyrillic" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i|Tinos:400,400i&amp;subset=cyrillic" rel="stylesheet">
 		<script src="utils/helpers.js"></script>
+		<script src="character/state.js"></script>
+		<script src="character/movement.js"></script>
+		<script src="character/combat.js"></script>
 		<script src="js/map.js"></script>
 		<script src="js/character.js"></script>
 		<script src="js/enemy.js"></script>
@@ -39,10 +42,32 @@ h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0px; margin
 		<!--h1>Инвентарь</h1>
 		<div class="inventory-box"><div class="inventory"></div></div-->
 
+		<div id="start-screen" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;">
+			<div style="font-family: 'Playfair Display'; font-size: 26px; text-align: center;">Нажмитие любую клавишу чтобы начать</div>
+			<div style="font-family: 'Open Sans'; font-size: 16px; text-align: center; opacity: 0.9;">
+				Движение: стрелки или WASD<br>
+				Атака: пробел
+			</div>
+			<div style="display:flex; gap:16px; align-items:center; justify-content:center; font-family: 'Open Sans'; font-size: 14px; opacity: 0.9; margin-top: 4px;">
+				<div style="display:flex; align-items:center; gap:8px;">
+					<img src="images/tile-HP.png" alt="HP" style="width:32px;height:32px;image-rendering: pixelated;">
+					<span>Зелье: восстанавливает здоровье</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:8px;">
+					<img src="images/tile-SW.png" alt="SW" style="width:32px;height:32px;image-rendering: pixelated;">
+					<span>Меч: увеличивает силу атаки</span>
+				</div>
+			</div>
+		</div>
 		<script>
-
-			var game=new Game();
-			game.init();
+			var game;
+			function startGame(){
+				var s=document.getElementById('start-screen');
+				if(s){ s.style.display='none'; }
+				game=new Game();
+				game.init();
+			}
+			document.addEventListener('keydown', function(){ startGame(); }, { once: true });
 		</script>
 	</body>
 </html>

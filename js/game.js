@@ -86,7 +86,6 @@ function Game() {
         document.addEventListener('keydown', this.keyHandler);
     };
 
-    // One-time immediate enemy attack upon entering adjacency; periodic attacks handled by enemiesAttack timer
     this.checkImmediateEnemyAttack = function() {
         for (var i = 0; i < this.enemies.length; i++) {
             var e = this.enemies[i];
@@ -102,7 +101,6 @@ function Game() {
                     e.wasInRange = true;
                 }
             } else {
-                // Reset flag when leaving adjacency to allow future immediate attack on re-entry
                 e.wasInRange = false;
             }
         }
@@ -117,7 +115,6 @@ function Game() {
 
     // Размещение врагов в случайном месте
     this.placeEnemiesAtRandomPositions = function(count) {
-        // Clear existing enemies
         this.enemies = [];
 
         for (var i = 0; i < count; i++) {
@@ -145,7 +142,6 @@ function Game() {
                 }
             }
 
-            // Set enemy position and add to enemies array
             enemy.setPosition(position.x, position.y);
             this.enemies.push(enemy);
         }
@@ -157,26 +153,20 @@ function Game() {
      * @param {number} healthCount - Number of health potions to place
      */
     this.placeItemsAtRandomPositions = function(swordCount, healthCount) {
-        // Clear existing items
         this.items = [];
 
-        // Create and place swords
+
         for (var i = 0; i < swordCount; i++) {
             var sword = new Item('sword');
             this.placeItemAtRandomPosition(sword);
         }
 
-        // Create and place health potions
         for (var i = 0; i < healthCount; i++) {
             var health = new Item('health');
             this.placeItemAtRandomPosition(health);
         }
     };
 
-    /**
-     * Place a single item at a random empty position
-     * @param {Item} item - The item to place
-     */
     this.placeItemAtRandomPosition = function(item) {
         var position;
         var isValidPosition = false;
@@ -270,102 +260,94 @@ function Game() {
     };
 
     this.render = function() {
-        // Get the field element
         var field = document.querySelector('.field');
         var fieldBox = document.querySelector('.field-box');
 
-        // Calculate the maximum available width and height
-        var maxWidth = window.innerWidth - 40; // Subtract some padding
-        var maxHeight = window.innerHeight - 100; // Subtract space for header and margins
+        var maxWidth = window.innerWidth - 40;
+        var maxHeight = window.innerHeight - 100;
 
-        // Calculate the tile size to fit the map within the available space
         var tileWidth = Math.floor(maxWidth / this.map.width);
         var tileHeight = Math.floor(maxHeight / this.map.height);
-        var tileSize = Math.min(tileWidth, tileHeight); // Use the smaller dimension to maintain square tiles
+        var tileSize = Math.min(tileWidth, tileHeight);
 
-        // Update the field dimensions
         var mapWidth = this.map.width * tileSize;
         var mapHeight = this.map.height * tileSize;
         field.style.width = mapWidth + 'px';
         field.style.height = mapHeight + 'px';
 
-        // Clear the field
         field.innerHTML = '';
 
-        // Check for player death and mark game over (stop timers)
         if (this.player && !isAlive(this.player) && !this.gameOver) {
             this.gameOver = true;
             this.stopTimers();
         }
 
-        // Check for victory: all enemies defeated
         if (!this.gameOver && !this.gameWon && this.enemies.length === 0) {
             this.gameWon = true;
             this.stopTimers();
         }
 
-        // Render the map
         for (var y = 0; y < this.map.height; y++) {
             for (var x = 0; x < this.map.width; x++) {
                 var tile = document.createElement('div');
                 tile.className = 'tile';
 
-                // Set tile size
                 tile.style.width = tileSize + 'px';
                 tile.style.height = tileSize + 'px';
 
-                // Position the tile
                 tile.style.left = (x * tileSize) + 'px';
                 tile.style.top = (y * tileSize) + 'px';
 
-                // Set the tile type
                 if (this.map.getTile(x, y) === 1) {
-                    tile.classList.add('tileW'); // Wall
+                    tile.classList.add('tileW'); // Стена
                 }
 
-                // Check if the player is on this tile and alive
-                if (this.player && isAlive(this.player) && this.player.x === x && this.player.y === y) {
-                    tile.classList.add('tileP'); // Player
+                var hasPlayer = false;
+                var hasEnemy = false;
 
-                    // Add health bar
+                if (this.player && isAlive(this.player) && this.player.x === x && this.player.y === y) {
+                    tile.classList.add('tileP'); // Игрок
+                    hasPlayer = true;
+
                     var healthBar = document.createElement('div');
                     healthBar.className = 'health';
                     healthBar.style.width = (this.player.health / this.player.maxHealth * 90) + '%';
                     tile.appendChild(healthBar);
                 }
 
-                // Check if an enemy is on this tile
-                for (var i = 0; i < this.enemies.length; i++) {
-                    if (this.enemies[i].x === x && this.enemies[i].y === y) {
-                        tile.classList.add('tileE'); // Enemy
+                if (!hasPlayer) {
+                    for (var i = 0; i < this.enemies.length; i++) {
+                        if (this.enemies[i].x === x && this.enemies[i].y === y) {
+                            tile.classList.add('tileE'); // Враг
+                            hasEnemy = true;
 
-                        // Add health bar
-                        var healthBar = document.createElement('div');
-                        healthBar.className = 'health';
-                        healthBar.style.width = (this.enemies[i].health / this.enemies[i].maxHealth * 90) + '%';
-                        tile.appendChild(healthBar);
-                        break;
-                    }
-                }
-
-                // Check if an item is on this tile
-                for (var i = 0; i < this.items.length; i++) {
-                    if (this.items[i].x === x && this.items[i].y === y) {
-                        if (this.items[i].type === 'sword') {
-                            tile.classList.add('tileSW'); // Sword
-                        } else if (this.items[i].type === 'health') {
-                            tile.classList.add('tileHP'); // Health potion
+                            var healthBar = document.createElement('div');
+                            healthBar.className = 'health';
+                            healthBar.style.width = (this.enemies[i].health / this.enemies[i].maxHealth * 90) + '%';
+                            tile.appendChild(healthBar);
+                            break;
                         }
-                        break;
                     }
                 }
 
-                // Add the tile to the field
+                // Render item only if there is no player or enemy on this tile
+                if (!hasPlayer && !hasEnemy) {
+                    for (var i = 0; i < this.items.length; i++) {
+                        if (this.items[i].x === x && this.items[i].y === y) {
+                            if (this.items[i].type === 'sword') {
+                                tile.classList.add('tileSW'); // Меч
+                            } else if (this.items[i].type === 'health') {
+                                tile.classList.add('tileHP'); // Очки здоровья
+                            }
+                            break;
+                        }
+                    }
+                }
+
                 field.appendChild(tile);
             }
         }
 
-        // If game is over (player dead), show overlay inside the field
         if (this.gameOver) {
             var overlay = document.createElement('div');
             overlay.setAttribute('data-overlay', 'game-over');

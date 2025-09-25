@@ -7,21 +7,27 @@ function Character() {
     this.attackPower = 10;
 
     this.setPosition = function(x, y) {
-        this.x = x;
-        this.y = y;
+        if (window.CharacterUtils && CharacterUtils.state && CharacterUtils.state.setPosition) {
+            CharacterUtils.state.setPosition(this, x, y);
+        } else {
+            this.x = x;
+            this.y = y;
+        }
     };
 
     this.attack = function(enemies) {
+        if (window.CharacterUtils && CharacterUtils.combat && CharacterUtils.combat.attack) {
+            return CharacterUtils.combat.attack(this, enemies);
+        }
+        // Fallback (should not happen if scripts loaded): inline simple attack
         var attacked = false;
-
         for (var i = 0; i < enemies.length; i++) {
-            if ((Math.abs(this.x - enemies[i].x) === 1 && this.y === enemies[i].y) || 
-                (Math.abs(this.y - enemies[i].y) === 1 && this.x === enemies[i].x)) {
-
+            var adjacent = (Math.abs(this.x - enemies[i].x) === 1 && this.y === enemies[i].y) ||
+                           (Math.abs(this.y - enemies[i].y) === 1 && this.x === enemies[i].x);
+            if (adjacent) {
                 if (enemies[i].health > 0) {
                     enemies[i].health -= this.attackPower;
                     attacked = true;
-
                     if (enemies[i].health <= 0) {
                         removeDefeatedEnemy(enemies, i);
                         i--;
@@ -29,84 +35,34 @@ function Character() {
                 }
             }
         }
-
         return attacked;
     };
 
     this.moveUp = function(map, enemies, items) {
-        var targetTile = map.getTile(this.x, this.y - 1);
-        if (targetTile === 0) {
-            for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].x === this.x && enemies[i].y === this.y - 1) {
-                    return false;
-                }
-            }
-
-            // Check if there's an item at the target position
-            checkAndHandleItem(items, this, this.x, this.y - 1);
-
-            this.y--;
-            return true;
-        } else {
-            return false;
+        if (window.CharacterUtils && CharacterUtils.movement && CharacterUtils.movement.moveUp) {
+            return CharacterUtils.movement.moveUp(this, map, enemies, items);
         }
+        return false;
     };
 
     this.moveDown = function(map, enemies, items) {
-        var targetTile = map.getTile(this.x, this.y + 1);
-        if (targetTile === 0) {
-            for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].x === this.x && enemies[i].y === this.y + 1) {
-                    return false;
-                }
-            }
-
-            // Check if there's an item at the target position
-            checkAndHandleItem(items, this, this.x, this.y + 1);
-
-            this.y++;
-            return true;
-        } else {
-            return false;
+        if (window.CharacterUtils && CharacterUtils.movement && CharacterUtils.movement.moveDown) {
+            return CharacterUtils.movement.moveDown(this, map, enemies, items);
         }
+        return false;
     };
 
     this.moveLeft = function(map, enemies, items) {
-        var targetTile = map.getTile(this.x - 1, this.y);
-        if (targetTile === 0) {
-            // Check if there's an enemy at the target position
-            for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].x === this.x - 1 && enemies[i].y === this.y) {
-                    return false;
-                }
-            }
-
-            // Check if there's an item at the target position
-            checkAndHandleItem(items, this, this.x - 1, this.y);
-
-            this.x--;
-            return true;
-        } else {
-            return false;
+        if (window.CharacterUtils && CharacterUtils.movement && CharacterUtils.movement.moveLeft) {
+            return CharacterUtils.movement.moveLeft(this, map, enemies, items);
         }
+        return false;
     };
 
     this.moveRight = function(map, enemies, items) {
-        var targetTile = map.getTile(this.x + 1, this.y);
-        if (targetTile === 0) {
-            for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].x === this.x + 1 && enemies[i].y === this.y) {
-                    return false;
-                }
-            }
-
-            // Check if there's an item at the target position
-            checkAndHandleItem(items, this, this.x + 1, this.y);
-
-            this.x++;
-            return true;
-        } else {
-            return false;
+        if (window.CharacterUtils && CharacterUtils.movement && CharacterUtils.movement.moveRight) {
+            return CharacterUtils.movement.moveRight(this, map, enemies, items);
         }
+        return false;
     };
 }
