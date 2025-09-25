@@ -1,15 +1,12 @@
 function Map() {
     this.width = 40;
     this.height = 24;
-
-
     this.grid = [];
-
     this.rooms = [];
 
-    this.init = function() {
-        console.log("Initializing map with dimensions", this.width, "x", this.height);
 
+    // Подготовка и создание карты
+    this.init = function() {
         this.grid = [];
         for (var y = 0; y < this.height; y++) {
             this.grid[y] = [];
@@ -17,48 +14,15 @@ function Map() {
                 this.grid[y][x] = 1;
             }
         }
-
-        this.generateRooms();
-
-        this.createPassages();
-
-        this.ensureAccessibility();
-
-        var emptyTiles = 0;
-        for (var y = 0; y < this.height; y++) {
-            for (var x = 0; x < this.width; x++) {
-                if (this.grid[y][x] === 0) {
-                    emptyTiles++;
-                }
-            }
-        }
-
-        if (emptyTiles < 100) {
-            console.warn("Not enough empty tiles, creating more...");
-            for (var i = 0; i < 3; i++) {
-                var y = getRandomInt(1, this.height - 2);
-                for (var x = 0; x < this.width; x++) {
-                    this.grid[y][x] = 0;
-                }
-            }
-
-            emptyTiles = 0;
-            for (var y = 0; y < this.height; y++) {
-                for (var x = 0; x < this.width; x++) {
-                    if (this.grid[y][x] === 0) {
-                        emptyTiles++;
-                    }
-                }
-            }
-        }
-
-        console.log("Map initialized with", emptyTiles, "empty tiles out of", this.width * this.height);
+        this.generateRooms(); // Вырезает в карте комнаты
+        this.createPassages(); // Генерирует коридоры
+        this.ensureAccessibility(); // Локально преобразует некоторые стены в пустоту (если много стен)
     };
 
+    // Генерируем комнаты
     this.generateRooms = function() {
         this.rooms = [];
-        var numRooms = getRandomInt(5, 10);
-        console.log("Generating", numRooms, "rooms");
+        var numRooms = getRandomInt(5, 10)
 
         var roomsCreated = 0;
         for (var i = 0; i < numRooms; i++) {
@@ -67,6 +31,7 @@ function Map() {
             var roomX = getRandomInt(1, this.width - roomWidth - 1);
             var roomY = getRandomInt(1, this.height - roomHeight - 1);
 
+            // Объект комнаты
             var newRoom = {
                 x: roomX,
                 y: roomY,
@@ -74,6 +39,7 @@ function Map() {
                 height: roomHeight
             };
 
+            // Проверка на пересечение с ранее созданными комнатами
             var overlaps = false;
             for (var j = 0; j < this.rooms.length; j++) {
                 if (doRectanglesOverlap(newRoom, this.rooms[j])) {
@@ -85,23 +51,21 @@ function Map() {
             if (!overlaps) {
                 this.rooms.push(newRoom);
                 roomsCreated++;
-
                 var emptyTilesInRoom = 0;
+
                 for (var y = newRoom.y; y < newRoom.y + newRoom.height; y++) {
                     for (var x = newRoom.x; x < newRoom.x + newRoom.width; x++) {
                         this.grid[y][x] = 0;
                         emptyTilesInRoom++;
                     }
                 }
-                console.log("Room", roomsCreated, "created with", emptyTilesInRoom, "empty tiles");
             }
         }
-        console.log("Created", roomsCreated, "rooms out of", numRooms, "attempts");
     };
 
+    // Создаем коридоры
     this.createPassages = function() {
         var numHorizontalPassages = getRandomInt(3, 5);
-        console.log("Creating", numHorizontalPassages, "horizontal passages");
         for (var i = 0; i < numHorizontalPassages; i++) {
             var y = getRandomInt(1, this.height - 2);
             var emptyTilesInPassage = 0;
@@ -109,11 +73,9 @@ function Map() {
                 this.grid[y][x] = 0;
                 emptyTilesInPassage++;
             }
-            console.log("Horizontal passage", i + 1, "created at y =", y, "with", emptyTilesInPassage, "empty tiles");
         }
 
         var numVerticalPassages = getRandomInt(3, 5);
-        console.log("Creating", numVerticalPassages, "vertical passages");
         for (var i = 0; i < numVerticalPassages; i++) {
             var x = getRandomInt(1, this.width - 2);
             var emptyTilesInPassage = 0;
@@ -121,15 +83,14 @@ function Map() {
                 this.grid[y][x] = 0;
                 emptyTilesInPassage++;
             }
-            console.log("Vertical passage", i + 1, "created at x =", x, "with", emptyTilesInPassage, "empty tiles");
         }
 
-        this.connectIsolatedRooms();
+        this.connectIsolatedRooms(); // Конект с изолированными комнатами
     };
 
+    // Пробитие маршрута к изолированным комнатам
     this.connectIsolatedRooms = function() {
 
-        console.log("Checking for isolated rooms...");
         var isolatedRoomsCount = 0;
 
         for (var i = 0; i < this.rooms.length; i++) {
@@ -137,7 +98,6 @@ function Map() {
 
             if (!isRoomConnected(room, this.grid)) {
                 isolatedRoomsCount++;
-                console.log("Room", i + 1, "is isolated, connecting it...");
 
                 if (getRandomInt(0, 1) === 0) {
                     var y = getRandomInt(room.y, room.y + room.height - 1);
@@ -146,7 +106,6 @@ function Map() {
                         this.grid[y][x] = 0;
                         emptyTilesInPassage++;
                     }
-                    console.log("Created horizontal passage at y =", y, "with", emptyTilesInPassage, "empty tiles");
                 } else {
                     var x = getRandomInt(room.x, room.x + room.width - 1);
                     var emptyTilesInPassage = 0;
@@ -154,16 +113,14 @@ function Map() {
                         this.grid[y][x] = 0;
                         emptyTilesInPassage++;
                     }
-                    console.log("Created vertical passage at x =", x, "with", emptyTilesInPassage, "empty tiles");
                 }
             }
         }
 
-        console.log("Connected", isolatedRoomsCount, "isolated rooms");
     };
 
+    //  Улучшение доступности комнат
     this.ensureAccessibility = function() {
-        console.log("Ensuring accessibility...");
         var tilesConverted = 0;
 
         for (var y = 1; y < this.height - 1; y++) {
@@ -188,24 +145,22 @@ function Map() {
                 }
             }
         }
-
-        console.log("Converted", tilesConverted, "wall tiles to empty tiles for better accessibility");
     };
 
+    // Доступ к плитке (тайлу) с защитой от выхода за границы и несформированной плитки
     this.getTile = function(x, y) {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
             return 1;
         }
 
         if (!this.grid || !this.grid[y] || typeof this.grid[y][x] === 'undefined') {
-            console.error("Grid not properly initialized at", x, y);
             return 1;
         }
 
-        console.log("getTile: grid[" + y + "][" + x + "] =", this.grid[y][x]);
         return this.grid[y][x];
     };
 
+    // Поиск случайной пустой позиции
     this.getRandomEmptyPosition = function() {
         var x, y;
         var attempts = 0;
@@ -213,16 +168,8 @@ function Map() {
             x = getRandomInt(0, this.width - 1);
             y = getRandomInt(0, this.height - 1);
             attempts++;
-            if (attempts > 1000) {
-                console.error("Failed to find an empty position after 1000 attempts!");
-                x = getRandomInt(0, this.width - 1);
-                y = getRandomInt(0, this.height - 1);
-                this.grid[y][x] = 0;
-                break;
-            }
         } while (this.grid[y][x] !== 0);
 
-        console.log("Found empty position at", x, y, "after", attempts, "attempts");
         return { x: x, y: y };
     };
 }

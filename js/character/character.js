@@ -19,7 +19,6 @@ function Character() {
         if (window.CharacterUtils && CharacterUtils.combat && CharacterUtils.combat.attack) {
             return CharacterUtils.combat.attack(this, enemies);
         }
-        // Fallback (should not happen if scripts loaded): inline simple attack
         var attacked = false;
         for (var i = 0; i < enemies.length; i++) {
             var adjacent = (Math.abs(this.x - enemies[i].x) === 1 && this.y === enemies[i].y) ||

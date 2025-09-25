@@ -13,7 +13,7 @@
             attacked = true;
             if (enemies[i].health <= 0 && typeof removeDefeatedEnemy === 'function') {
               removeDefeatedEnemy(enemies, i);
-              i--; // stay at same index after removal
+              i--;
             }
           }
         }
