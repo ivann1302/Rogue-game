@@ -31,6 +31,9 @@ function applyHealthPotion(player) {
 
 function applySword(player) {
     player.attackPower += 5;
+    if (!window.Inventory) window.Inventory = { swords: 0 };
+    window.Inventory.swords += 1;
+    if (typeof updateInventoryUI === 'function') { updateInventoryUI(); }
     return true;
 }
 
@@ -75,4 +78,20 @@ function isRoomConnected(room, grid) {
 
 function isAlive(entity) {
     return !!(entity && typeof entity.health === 'number' && entity.health > 0);
+}
+
+function updateInventoryUI() {
+    var el = document.querySelector('.inventory');
+    if (!el) return;
+    el.innerHTML = '';
+    if (window.Inventory && window.Inventory.swords > 0) {
+        var img = document.createElement('img');
+        img.src = 'images/tile-SW.png';
+        img.alt = 'SW';
+        var span = document.createElement('span');
+        span.className = 'count';
+        span.textContent = 'x' + window.Inventory.swords;
+        el.appendChild(img);
+        el.appendChild(span);
+    }
 }

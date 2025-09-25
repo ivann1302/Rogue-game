@@ -31,9 +31,11 @@
 		<script src="js/game/game.js"></script>
 <style>
 * { box-sizing: border-box; }
-body, html { height: 100%; }
+html, body { height: 100%; overflow: hidden; }
 body { background-color: #000000; color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
 h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0px; margin: 0px; text-align: center; }
+h2 { font-family: "Playfair Display"; font-size: 20px; padding: 6px 0px; margin: 0px; text-align: center; }
+.game-wrap { display: flex; align-items: flex-start; gap: 12px; }
 .field-box { border: 2px solid #d0d0d0; margin: 0 auto; }
 .field { position: relative; }
 .field .tile { position: absolute; background-size: 100%; background-image: url(images/tile-.png); z-index: 5; }
@@ -44,16 +46,24 @@ h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0px; margin
 .field .tileSW { background-image: url(images/tile-SW.png); z-index: 9; }
 .field .tile .health { background-color: #ff0000; z-index: 11; position: absolute; left: 0px; top: 0px; height: 2px; }
 .field .tileP .health { background-color: #00ff00; z-index: 11; position: absolute; left: 0px; top: 0px; height: 2px; }
-.inventory-box { border: 2px solid #d0d0d0; margin: 0 auto; }
-.inventory { position: relative; width: 800px; height: 32px; }
+.inventory-box { border: 2px solid #d0d0d0; width: 100px; padding-bottom: 4px; margin: 0 auto; }
+.inventory { display: flex; align-items: center; gap: 4px; width: 100%; height: 24px; justify-content: center; }
+.inventory img { width: 16px; height: 16px; image-rendering: pixelated; }
+.inventory .count { font-family: "Playfair Display"; font-size: 12px; }
 </style>
 		<title>Rogue-like Game</title>
 	</head>
 	<body>
 		<h1>Игровое поле</h1>
-		<div class="field-box"><div class="field"></div></div>
-		<!--h1>Инвентарь</h1>
-		<div class="inventory-box"><div class="inventory"></div></div-->
+		<div class="game-wrap">
+			<div>
+				<div class="field-box"><div class="field"></div></div>
+			</div>
+			<div>
+				<h2 style="padding-top: 0; line-height: 1; font-size: 16px">Инвентарь</h2>
+				<div class="inventory-box"><div class="inventory"></div></div>
+			</div>
+		</div>
 
 		<div id="start-screen" style="position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;">
 			<div style="font-family: 'Playfair Display'; font-size: 26px; text-align: center;">Нажмите любую клавишу чтобы начать</div>

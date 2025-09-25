@@ -5,7 +5,11 @@
     render: function (game) {
       var field = document.querySelector('.field');
       var fieldBox = document.querySelector('.field-box');
-      var maxWidth = window.innerWidth - 40;
+      var sidebar = document.querySelector('.game-wrap') && document.querySelector('.game-wrap').children[1];
+      var sidebarWidth = sidebar ? sidebar.offsetWidth : 0;
+      var gap = 12;
+      var maxWidth = window.innerWidth - 40 - sidebarWidth - gap;
+      if (maxWidth < 100) maxWidth = 100;
       var maxHeight = window.innerHeight - 100;
       var tileWidth = Math.floor(maxWidth / game.map.width);
       var tileHeight = Math.floor(maxHeight / game.map.height);
